@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gradient-to-tr from-slate-950 via-indigo-950 to-slate-950 flex flex-col text-slate-100 relative">
 
-    <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-box">
+    <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-box select-none">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
@@ -14,26 +14,16 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <template v-if="isLogin">
-            <button @click="handleLogout" class="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500/10 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/20 transition-all shadow-md shadow-rose-950/20">
-              安全登出
-            </button>
-          </template>
+          <button v-if="isLogin" @click="handleLogout" class="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-500/10 hover:bg-rose-500 text-rose-300 hover:text-white border border-rose-500/20 transition-all shadow-md shadow-rose-950/20">
+            安全登出
+          </button>
         </div>
       </div>
     </header>
 
     <main class="flex-1 flex flex-col">
-      <AuthPortal v-if="!isLogin" :apiBase="apiBase" @onAuthSuccess="handleAuthSuccess" />
-      <ControlCenter v-else :apiBase="apiBase" :token="token" />
+      <router-view />
     </main>
-
-    <MediaTheater
-        v-if="previewFile"
-        :file="previewFile"
-        :token="token"
-        @onCloseTheater="previewFile = null"
-    />
 
     <div class="fixed bottom-6 right-6 z-50 space-y-3 pointer-events-none">
       <div v-for="toast in toasts" :key="toast.id" :class="['px-5 py-3 rounded-xl shadow-2xl border transition-all duration-300 pointer-events-auto text-sm font-semibold flex items-center gap-2',
@@ -47,31 +37,21 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
-import { CloudLightning } from 'lucide-vue-next' // 🟢 已安全移除未使用的 Settings 图标引用
-import AuthPortal from './components/AuthPortal.vue'
-import ControlCenter from './components/ControlCenter.vue'
-import MediaTheater from './components/MediaTheater.vue'
+import { CloudLightning } from 'lucide-vue-next'
 
-// 🎯 刚性收拢：不再读取用户本地缓存，强制默认锁定当前宿主机的物理同源网关（与 Vite 代理、生产同源环境 100% 贴合）
-const apiBase = ref(`${window.location.protocol}//${window.location.host}`)
+const router = useRouter()
 const token = ref(localStorage.getItem('cs_token') || '')
 const isLogin = ref(!!token.value)
 const toasts = ref([])
-const previewFile = ref(null)
-
-const handleAuthSuccess = (jwtToken) => {
-  token.value = jwtToken
-  localStorage.setItem('cs_token', jwtToken)
-  isLogin.value = true
-}
 
 const handleLogout = () => {
   localStorage.removeItem('cs_token')
   token.value = ''
   isLogin.value = false
-  previewFile.value = null
   pushToast('身份凭证已安全注销', 'info')
+  router.push('/login') // 回跳至租户登录门禁
 }
 
 const pushToast = (msg, type = 'info') => {
@@ -83,12 +63,18 @@ const pushToast = (msg, type = 'info') => {
 onMounted(() => {
   window.addEventListener('toast', (e) => pushToast(e.detail.msg, e.detail.type))
 
+  // 监听凭证校验事件更新本地登录状态
+  window.addEventListener('auth-success', () => {
+    isLogin.value = true
+    token.value = localStorage.getItem('cs_token')
+  })
+
   // 挂载全局物理流安全下载大闸
   window.addEventListener('fallback-download', (e) => {
     const file = e.detail
     pushToast(`正在开启物理读通道下载: ${file.name}...`, 'info')
     axios({
-      url: `${apiBase.value}/file/download/${file.id}`,
+      url: `/file/download/${file.id}`,
       method: 'GET',
       headers: { 'Authorization': `Bearer ${token.value}` },
       responseType: 'blob'
