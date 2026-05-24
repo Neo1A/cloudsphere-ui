@@ -1,0 +1,15 @@
+/* 🟢 正确：@import 必须置于文件绝对顶部 */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.backdrop-blur-box {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
