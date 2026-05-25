@@ -19,7 +19,7 @@
                class="max-h-[60vh] w-full object-contain"></video>
         <audio v-else-if="resolvedType === 'audio'" :src="authenticatedUrl" controls autoplay class="w-full max-w-lg"/>
         <img v-else-if="resolvedType === 'image'" :src="authenticatedUrl"
-             class="max-h-[60vh] object-contain rounded-lg shadow-2xl"/>
+             class="max-h-[60vh] object-contain rounded-lg shadow-2xl" alt=""/>
 
         <DocumentViewer v-else-if="resolvedType === 'office'" :file="file" :token="token"/>
 
@@ -59,12 +59,6 @@ import {
   X,
   FileCode,
   FileVideo,
-  FileAudio,
-  FileImage,
-  FileText,
-  FileSpreadsheet,
-  FileArchive,
-  ShieldAlert,
   File,
   HelpCircle
 } from 'lucide-vue-next'
