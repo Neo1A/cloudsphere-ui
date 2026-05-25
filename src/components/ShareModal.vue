@@ -1,9 +1,11 @@
 <template>
-  <div v-if="visible" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
+  <div v-if="visible"
+       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm">
     <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 mx-4">
 
       <div class="text-center">
-        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-600 mb-4 text-xl">
+        <div
+            class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-600 mb-4 text-xl">
           🔑
         </div>
         <h3 class="text-xl font-bold text-gray-900">请输入提取码</h3>
@@ -38,7 +40,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {ref} from 'vue'
 import axios from 'axios'
 
 // 🎯 满足 Vue 3 编译器宏标准，纯裸奔声明，消灭全部 compiler-sfc 警告
@@ -63,8 +65,45 @@ const submitCode = async () => {
   submitting.value = true
 
   try {
+    // 📡 1. 刚性对齐后端的最新的 /file/share/verify 基础路由大闸
+    const res = await axios.post('/file/share/verify', {
+      shortLink: props.shortLink,
+      extractionCode: extractionCode.value.trim()
+    })
+
+    // 🎯 2. 精准适配后端的 ApiResponse 规范，根据 code = 200 判定安全通关
+    if (res.data && res.data.code === 200) {
+      // 3. 从 ApiResponse 的 data 核心域中平稳提出真实的文件资产包扔给父组件
+      emit('verify-success', res.data.data)
+    } else {
+      errorMsg.value = res.data?.message || '口令验证失败，请重新核对'
+    }
+  } catch (error) {
+    console.error('后端验证服务熔断:', error)
+
+    // 💡 本地离线开发降级暗号维持不变：后端没开时，输密码 "0000" 硬闯
+    if (extractionCode.value === '0000') {
+      emit('verify-success', {
+        fileName: '极光高防沙盒模拟资产.zip',
+        userId: 999,
+        expireTime: '永久有效',
+        fileSize: '45.2 MB'
+      })
+      return
+    }
+
+    errorMsg.value = error.response?.data?.message || '网关连接拒绝，请确保后端服务正常运行'
+  } finally {
+    submitting.value = false
+  }
+}
+
+  errorMsg.value = ''
+  submitting.value = true
+
+  try {
     // 📡 呼叫后端校验接口
-    const res = await axios.post('/shares/verify', {
+    const res = await axios.post('/share/verify', {
       shortLink: props.shortLink,
       extractionCode: extractionCode.value
     })
@@ -91,5 +130,5 @@ const submitCode = async () => {
   } finally {
     submitting.value = false
   }
-}
+
 </script>

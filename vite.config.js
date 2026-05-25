@@ -14,17 +14,14 @@ export default defineConfig({
     port: 3000,
     host: '0.0.0.0',
     proxy: {
+      // 🎯 极光流控大闸：合并所有文件/分享资产的操作流
+      // 只要前端请求以 /file 开头（如 /file/list, /file/share/create），自动丝滑转发
       '/file': {
         target: 'http://localhost:8080',
         changeOrigin: true
       },
+      // 租户身份与认证大闸
       '/user': {
-        target: 'http://localhost:8080',
-        changeOrigin: true
-      },
-      // 🎯 核心修复：刚性补齐 /shares 路由的跨域反向代理规则
-      // 否则前端向本地 3000 端口发送 /shares 请求时，会直接报 404 从而引发“网关异常”
-      '/shares': {
         target: 'http://localhost:8080',
         changeOrigin: true
       }

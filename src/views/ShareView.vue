@@ -26,7 +26,8 @@
               <p class="text-xs text-gray-400">大小: {{ fileInfo.fileSize || '未知' }}</p>
             </div>
           </div>
-          <button @click="downloadFile" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+          <button @click="downloadFile"
+                  class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
             立即下载
           </button>
         </div>
@@ -50,8 +51,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import {ref, onMounted} from 'vue'
+import {useRoute} from 'vue-router'
 import axios from 'axios'
 import ShareModal from '@/components/ShareModal.vue'
 
@@ -62,12 +63,12 @@ const shortLink = route.params.shortLink
 const loading = ref(true)
 const isModalVisible = ref(false)
 const hasVerified = ref(false)
-const fileInfo = ref({ expireTime: '计算中...' })
+const fileInfo = ref({expireTime: '计算中...'})
 
 onMounted(async () => {
   try {
     // 📡 调用后端接口：根据短链获取该分享的基本配置（比如是否需要密码、是否过期）
-    const res = await axios.get(`/shares/info/${shortLink}`)
+    const res = await axios.get(`/file/share/info/${shortLink}`)
 
     // 对应你的持久化 FileShare 结构：判断 extractionCode 是否存在
     if (res.data.hasExtractionCode) {
@@ -96,7 +97,8 @@ const handleVerifySuccess = (backedFileInfo) => {
 }
 
 const downloadFile = () => {
-  // 执行具体的物理下载逻辑，比如 window.open 或 axios blob 下载
-  alert('开始下载资产: ' + fileInfo.value.fileName)
+  // 🎯 核心充实：跨越物权树，匿名高吞吐直连玩客云内核推流下载
+  const codeParam = fileInfo.value.needCode ? `?extractionCode=${sessionStorage.getItem(`verified_${shortLink}`)}` : ''
+  window.open(`${window.location.origin}/file/share/download/${shortLink}${codeParam}`, '_blank')
 }
 </script>

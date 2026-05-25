@@ -23,16 +23,19 @@
         @onCloseTheater="previewFile = null"
     />
 
-    <div v-if="isExeModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
+    <div v-if="isExeModalOpen"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
       <div class="max-w-md w-full rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl relative text-center">
 
-        <div class="mx-auto w-12 h-12 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
-          <AlertTriangle class="h-6 w-6" />
+        <div
+            class="mx-auto w-12 h-12 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
+          <AlertTriangle class="h-6 w-6"/>
         </div>
 
         <h3 class="text-base font-black text-slate-100 mb-2">系统安全防护提示</h3>
 
-        <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 text-left font-mono text-xs text-slate-400 mb-4 break-all">
+        <div
+            class="bg-slate-950/60 border border-slate-800 rounded-xl p-3.5 text-left font-mono text-xs text-slate-400 mb-4 break-all">
           <p class="text-indigo-400 font-bold mb-1">文件名称：</p>
           <p class="mb-2 text-slate-200">{{ exeFileInfo.name }}</p>
           <p class="text-indigo-400 font-bold mb-1">文件属性：</p>
@@ -48,7 +51,8 @@
               @click="triggerDownload(exeFileInfo)"
               class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-lg shadow-indigo-500/20"
           >
-            <Download class="h-3.5 w-3.5" /> 依旧下载到本地
+            <Download class="h-3.5 w-3.5"/>
+            依旧下载到本地
           </button>
           <button
               @click="isExeModalOpen = false"
@@ -64,16 +68,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {ref} from 'vue'
 import axios from 'axios'
-import { AlertTriangle, Download } from 'lucide-vue-next'
+import {AlertTriangle, Download} from 'lucide-vue-next'
 import FileCabinet from './FileCabinet.vue'
 import UploadQueue from './UploadQueue.vue'
 import MediaTheater from './MediaTheater.vue'
 
 const props = defineProps({
-  apiBase: { type: String, required: true },
-  token: { type: String, required: true }
+  apiBase: {type: String, required: true},
+  token: {type: String, required: true}
 })
 
 const activeFolderId = ref(0)
@@ -111,11 +115,11 @@ const handleTriggerPreview = (file) => {
 
 // 独立于放映厅外的普通物理下载直通车
 const triggerDownload = (file) => {
-  window.dispatchEvent(new CustomEvent('toast', { detail: { msg: '正在拉取程序二进制流...', type: 'info' } }))
+  window.dispatchEvent(new CustomEvent('toast', {detail: {msg: '正在拉取程序二进制流...', type: 'info'}}))
   axios({
     url: file.url,
     method: 'GET',
-    headers: { 'Authorization': `Bearer ${props.token}` },
+    headers: {'Authorization': `Bearer ${props.token}`},
     responseType: 'blob'
   }).then((res) => {
     const url = window.URL.createObjectURL(new Blob([res.data]))

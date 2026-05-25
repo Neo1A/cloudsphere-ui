@@ -36,7 +36,8 @@
           </thead>
           <tbody>
           <tr v-for="(row, rIdx) in currentSheetData" :key="rIdx" class="hover:bg-slate-800/30 transition-colors">
-            <td v-for="(cell, cIdx) in row" :key="cIdx" class="p-2.5 border border-slate-800 text-slate-400 truncate max-w-[200px]" :title="cell">
+            <td v-for="(cell, cIdx) in row" :key="cIdx"
+                class="p-2.5 border border-slate-800 text-slate-400 truncate max-w-[200px]" :title="cell">
               {{ cell }}
             </td>
           </tr>
@@ -45,9 +46,10 @@
       </div>
     </div>
 
-    <div v-if="!rendering && ['ppt', 'pptx', 'doc', 'xls'].includes(fileType)" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+    <div v-if="!rendering && ['ppt', 'pptx', 'doc', 'xls'].includes(fileType)"
+         class="flex-1 flex flex-col items-center justify-center p-8 text-center">
       <div class="p-4 rounded-full bg-indigo-500/10 text-indigo-400 mb-4 animate-pulse">
-        <FileBarChart2 class="h-10 w-10" />
+        <FileBarChart2 class="h-10 w-10"/>
       </div>
       <h4 class="text-sm font-bold text-slate-200">[{{ file.name }}] 处于受控全量锁定状态</h4>
       <p class="text-xs text-slate-500 max-w-sm mt-2 leading-relaxed">
@@ -57,18 +59,19 @@
           @click="downloadFallback"
           class="mt-5 px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-indigo-500/20"
       >
-        <Download class="h-3.5 w-3.5" /> 立即拉取原始文档
+        <Download class="h-3.5 w-3.5"/>
+        立即拉取原始文档
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import {ref, onMounted, computed} from 'vue'
 import axios from 'axios'
-import { renderAsync } from 'docx-preview'
+import {renderAsync} from 'docx-preview'
 import * as XLSX from 'xlsx'
-import { FileBarChart2, Download } from 'lucide-vue-next'
+import {FileBarChart2, Download} from 'lucide-vue-next'
 
 const props = defineProps({
   file: Object, // { id, name, url }
@@ -97,7 +100,7 @@ const loadDocumentStream = async () => {
   try {
     // 🎯 核心写流控对接：通过 Axios 强行以 arraybuffer 接收后端的物理文件流
     const response = await axios.get(props.file.url, {
-      headers: { 'Authorization': `Bearer ${props.token}` },
+      headers: {'Authorization': `Bearer ${props.token}`},
       responseType: 'arraybuffer'
     })
 
@@ -111,24 +114,24 @@ const loadDocumentStream = async () => {
       })
     } else if (fileType.value === 'xlsx') {
       // 🚀 激活纯前端 Excel 解码
-      const workbook = XLSX.read(buffer, { type: 'array' })
+      const workbook = XLSX.read(buffer, {type: 'array'})
       excelSheets.value = workbook.SheetNames
 
       workbook.SheetNames.forEach(sheetName => {
         const worksheet = workbook.Sheets[sheetName]
         // 转化为二维数组，方便 Tailwind CSS 高保真表格输出
-        excelWorkbookData.value[sheetName] = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
+        excelWorkbookData.value[sheetName] = XLSX.utils.sheet_to_json(worksheet, {header: 1})
       })
     }
   } catch (err) {
-    window.dispatchEvent(new CustomEvent('toast', { detail: { msg: 'Office 组件读取或解码流发生破裂', type: 'error' } }))
+    window.dispatchEvent(new CustomEvent('toast', {detail: {msg: 'Office 组件读取或解码流发生破裂', type: 'error'}}))
   } finally {
     rendering.value = false
   }
 }
 
 const downloadFallback = () => {
-  window.dispatchEvent(new CustomEvent('fallback-download', { detail: props.file }))
+  window.dispatchEvent(new CustomEvent('fallback-download', {detail: props.file}))
 }
 
 onMounted(() => {
@@ -146,6 +149,7 @@ onMounted(() => {
   max-width: 800px !important;
   min-height: 100% !important;
 }
+
 .docx-view-window p {
   color: #1e293b !important;
 }

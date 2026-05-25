@@ -2,7 +2,8 @@
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
     <div class="max-w-md w-full rounded-2xl border border-slate-800 bg-slate-900/95 p-6 shadow-2xl text-slate-100">
       <h3 class="text-sm font-black mb-4 flex items-center gap-1.5 text-indigo-400">
-        <Share2 class="h-4.5 w-4.5" /> 创建安全分享项
+        <Share2 class="h-4.5 w-4.5"/>
+        创建安全分享项
       </h3>
 
       <!-- 阶段 1：参数配置 -->
@@ -29,7 +30,8 @@
         </div>
 
         <!-- 当选择 CUSTOM 时，动态展开时间选择器 -->
-        <div v-if="form.expireType === 'CUSTOM'" class="p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/20 space-y-1.5 animate-slideDown">
+        <div v-if="form.expireType === 'CUSTOM'"
+             class="p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/20 space-y-1.5 animate-slideDown">
           <label class="block text-[10px] text-indigo-400 font-black flex items-center gap-1">
             设定自定义截止绝对时间
           </label>
@@ -47,37 +49,53 @@
             <span class="text-xs font-bold text-slate-200">提取码安全保护</span>
             <span class="text-[10px] text-slate-500">开启后生成随机 4 位提取口令</span>
           </div>
-          <input type="checkbox" v-model="form.needCode" class="h-4.5 w-4.5 rounded-lg border-slate-800 bg-slate-950 text-indigo-600 cursor-pointer" />
+          <input type="checkbox" v-model="form.needCode"
+                 class="h-4.5 w-4.5 rounded-lg border-slate-800 bg-slate-950 text-indigo-600 cursor-pointer"/>
         </div>
 
         <div class="flex gap-3 pt-4 border-t border-slate-800/60">
-          <button @click="handleCreate" :disabled="submitting" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-xs text-white disabled:opacity-50 flex items-center justify-center gap-1">
-            <span v-if="submitting" class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent"></span>
+          <button @click="handleCreate" :disabled="submitting"
+                  class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-xs text-white disabled:opacity-50 flex items-center justify-center gap-1">
+            <span v-if="submitting"
+                  class="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white border-t-transparent"></span>
             立即生成分享链接
           </button>
-          <button @click="$emit('onClose')" class="px-5 py-2.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-400 hover:text-white">取消</button>
+          <button @click="$emit('onClose')"
+                  class="px-5 py-2.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-400 hover:text-white">
+            取消
+          </button>
         </div>
       </div>
 
       <!-- 阶段 2：结果展示 -->
       <div v-else class="space-y-4">
-        <div class="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">✓ 宿主机已成功创建时效性保护节点</div>
+        <div
+            class="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+          ✓ 宿主机已成功创建时效性保护节点
+        </div>
         <div class="space-y-3">
           <div>
             <label class="block text-[10px] text-slate-500 font-bold mb-1">匿名获取链接</label>
-            <input type="text" readonly :value="fullShareUrl" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-300 outline-none font-mono text-[11px]" />
+            <input type="text" readonly :value="fullShareUrl"
+                   class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-300 outline-none font-mono text-[11px]"/>
           </div>
           <div v-if="shareResult.extractionCode">
             <label class="block text-[10px] text-slate-500 font-bold mb-1">4位保护提取口令</label>
-            <input type="text" readonly :value="shareResult.extractionCode" class="w-24 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-center text-slate-200 font-mono font-bold text-sm tracking-widest" />
+            <input type="text" readonly :value="shareResult.extractionCode"
+                   class="w-24 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-center text-slate-200 font-mono font-bold text-sm tracking-widest"/>
           </div>
         </div>
         <div class="text-[10px] text-slate-500 italic px-0.5">
           * 分享失效时间: {{ shareResult.expireTime || '永久有效' }}
         </div>
         <div class="flex gap-3 pt-4 border-t border-slate-800/60">
-          <button @click="copyShare" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-xs text-white">一键复制分享卡片</button>
-          <button @click="$emit('onClose')" class="px-5 py-2.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-400 text-white">关闭</button>
+          <button @click="copyShare"
+                  class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-xs text-white">
+            一键复制分享卡片
+          </button>
+          <button @click="$emit('onClose')"
+                  class="px-5 py-2.5 rounded-xl border border-slate-700 text-xs font-bold text-slate-400 text-white">关闭
+          </button>
         </div>
       </div>
     </div>
@@ -85,11 +103,11 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import {ref, reactive, computed} from 'vue'
 import axios from 'axios'
-import { Share2 } from 'lucide-vue-next'
+import {Share2} from 'lucide-vue-next'
 
-const props = defineProps({ isOpen: Boolean, file: Object, apiBase: String, headers: Object })
+const props = defineProps({isOpen: Boolean, file: Object, apiBase: String, headers: Object})
 const emit = defineEmits(['onClose', 'onToast'])
 
 const submitting = ref(false)
@@ -111,7 +129,7 @@ const fullShareUrl = computed(() => shareResult.value ? `${window.location.origi
 
 const handleCreate = async () => {
   if (form.expireType === 'CUSTOM' && !form.customExpireTime) {
-    emit('onToast', { msg: '请选择自定义失效截止时间', type: 'error' })
+    emit('onToast', {msg: '请选择自定义失效截止时间', type: 'error'})
     return
   }
 
@@ -123,23 +141,23 @@ const handleCreate = async () => {
 
   submitting.value = true
   try {
-    const res = await axios.post(`${props.apiBase}/shares`, {
+    const res = await axios.post(`${props.apiBase}/file/share/create`, {
       userFileId: props.file.id,
       expireType: form.expireType,
       needCode: form.needCode,
       customExpireTime: formattedTime
-    }, { headers: props.headers })
+    }, {headers: props.headers})
 
     if (res.data.code === 200) {
       shareResult.value = res.data.data
-      emit('onToast', { msg: '极光资产分享链生成成功', type: 'success' })
+      emit('onToast', {msg: '极光资产分享链生成成功', type: 'success'})
     } else {
-      emit('onToast', { msg: res.data.message || '生成失败', type: 'error' })
+      emit('onToast', {msg: res.data.message || '生成失败', type: 'error'})
     }
   } catch (err) {
     console.error('【极光分享网关发生物理通信故障】:', err)
     const errDetail = err.response?.data?.message || err.message || '未知连接问题'
-    emit('onToast', { msg: `分享网关异常: ${errDetail}`, type: 'error' })
+    emit('onToast', {msg: `分享网关异常: ${errDetail}`, type: 'error'})
   } finally {
     submitting.value = false
   }
@@ -150,10 +168,15 @@ const copyShare = () => {
   if (shareResult.value.extractionCode) text += `\n4位提取密令: ${shareResult.value.extractionCode}`
   text += `\n有效期至: ${shareResult.value.expireTime || '永久有效'}`
 
-  const textArea = document.createElement("textarea"); textArea.value = text; textArea.style.position = "fixed"
-  document.body.appendChild(textArea); textArea.focus(); textArea.select()
-  document.execCommand('copy'); document.body.removeChild(textArea)
-  emit('onToast', { msg: '分享文案已成功捕获', type: 'success' })
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.style.position = "fixed"
+  document.body.appendChild(textArea);
+  textArea.focus();
+  textArea.select()
+  document.execCommand('copy');
+  document.body.removeChild(textArea)
+  emit('onToast', {msg: '分享文案已成功捕获', type: 'success'})
 }
 </script>
 
@@ -161,10 +184,18 @@ const copyShare = () => {
 .color-scheme-dark {
   color-scheme: dark;
 }
+
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 .animate-slideDown {
   animation: slideDown 0.25s ease-out forwards;
 }
