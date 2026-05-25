@@ -70,8 +70,8 @@
       <!-- 阶段 2：结果展示 -->
       <div v-else class="space-y-4">
         <div
-            class="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
-          ✓ 宿主机已成功创建时效性保护节点
+            class="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-400 text-xs font-semibold text-center">
+          已成功创建时效性保护节点
         </div>
         <div class="space-y-3">
           <div>

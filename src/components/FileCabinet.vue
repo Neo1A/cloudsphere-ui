@@ -60,6 +60,15 @@
         :isOpen="isShareModalOpen" :file="sharingFile" :apiBase="apiBase" :headers="cabinetHeaders"
         @onClose="isShareModalOpen = false" @onToast="triggerRelayToast"
     />
+    <ShareModal
+        v-if="isShareModalOpen"
+        :isOpen="isShareModalOpen"
+        :file="sharingFile"
+        :apiBase="apiBase"
+        :headers="cabinetHeaders"
+        @onClose="isShareModalOpen = false"
+        @onToast="triggerRelayToast"
+    />
 
     <div v-if="isCreateFolderOpen"
          class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">

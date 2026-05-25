@@ -53,8 +53,8 @@
 </template>
 
 <script setup>
-import {ref} from 'vue'
-import {useRouter} from 'vue-router'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const router = useRouter()
@@ -69,19 +69,41 @@ const handleAuth = async () => {
   successMsg.value = '';
   try {
     const endpoint = authMode.value === 'login' ? '/user/login' : '/user/register'
-    const res = await axios.post(endpoint, {username: username.value, password: password.value})
-    if (res.data.code === 200) {
+    const res = await axios.post(endpoint, { username: username.value, password: password.value })
+
+    if (res.data && res.data.code === 200) {
       if (authMode.value === 'login') {
+        // 1. 锁死极光网盘安全物权凭证 Token
         localStorage.setItem('cs_token', res.data.data)
+
+        // 2. 顺手将当前输入的用户名存入本地，配合右上角勋章双保险渲染（消灭未知租户）
+        localStorage.setItem('cs_username', username.value)
+
         window.dispatchEvent(new CustomEvent('auth-success'))
-        router.push('/') // 登录成功直接切入主大厅
+
+        // ==================== 🎯【核心修复：原路召回大闸】====================
+        // 3. 探针扫描：前往 sessionStorage 提取分享页此前派发的召回暗号
+        const redirectBackUrl = sessionStorage.getItem('cs_redirect_back')
+
+        if (redirectBackUrl) {
+          // 🧼 刚性动作：打捞成功后立刻擦除缓存，防止后续逻辑跨域串流污染
+          sessionStorage.removeItem('cs_redirect_back')
+
+          // ✈️ 拦截盲飞：精准将用户定向回刚刚点击转存的那个加密分享大厅！
+          router.push(redirectBackUrl)
+        } else {
+          // 🪐 常规放行：没有暗号，说明是主动登录，平稳推入网盘主控制台
+          router.push('/')
+        }
+        // ===================================================================
+
       } else {
         successMsg.value = '账户数据空间就绪，已自动切回登录。'
         authMode.value = 'login'
         password.value = ''
       }
     } else {
-      errorMsg.value = res.data.message
+      errorMsg.value = res.data.message || '网关拒绝了您的凭证请求'
     }
   } catch (err) {
     errorMsg.value = err.response?.data?.message || '宿主机网关拒绝连接'

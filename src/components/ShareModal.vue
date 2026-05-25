@@ -18,7 +18,7 @@
             type="text"
             maxlength="4"
             placeholder="四位提取码"
-            class="w-full text-center tracking-widest text-lg font-bold border-2 border-gray-300 focus:border-blue-500 focus:outline-none p-3 rounded-lg bg-gray-50"
+            class="w-full text-center tracking-widest text-lg font-bold border-2 border-gray-300 focus:border-blue-500 focus:outline-none p-3 rounded-lg bg-gray-50 text-black"
             @keyup.enter="submitCode"
         />
 
@@ -40,10 +40,10 @@
 </template>
 
 <script setup>
-import {ref} from 'vue'
+import { ref } from 'vue'
 import axios from 'axios'
 
-// 🎯 满足 Vue 3 编译器宏标准，纯裸奔声明，消灭全部 compiler-sfc 警告
+// 🎯 满足 Vue 3 编译器宏标准，消灭全部 compiler-sfc 警告
 const props = defineProps({
   visible: Boolean,
   shortLink: String
@@ -56,7 +56,9 @@ const errorMsg = ref('')
 const submitting = ref(false)
 
 const submitCode = async () => {
-  if (extractionCode.value.trim().length !== 4) {
+  const codeValue = extractionCode.value.trim()
+
+  if (codeValue.length !== 4) {
     errorMsg.value = '请输入完整的 4 位提取码'
     return
   }
@@ -65,15 +67,20 @@ const submitCode = async () => {
   submitting.value = true
 
   try {
-    // 📡 1. 刚性对齐后端的最新的 /file/share/verify 基础路由大闸
+    // 📡 1. 刚性对齐后端最正规的 /file/share/verify 统一网关大闸
     const res = await axios.post('/file/share/verify', {
       shortLink: props.shortLink,
-      extractionCode: extractionCode.value.trim()
+      extractionCode: codeValue
     })
 
-    // 🎯 2. 精准适配后端的 ApiResponse 规范，根据 code = 200 判定安全通关
+    // 🎯 2. 精准适配后端的 ApiResponse 规范，以 code === 200 作为安全通关判定
     if (res.data && res.data.code === 200) {
-      // 3. 从 ApiResponse 的 data 核心域中平稳提出真实的文件资产包扔给父组件
+
+      // 💾 【极其重要】：在此处将验证通过的提取口令无感写入 sessionStorage 缓存！
+      // 这样外层落脚页 ShareView.vue 在点击下载时，才能顺利捞出该参数追加到 URL 尾部，彻底消灭 400 拦截！
+      sessionStorage.setItem(`verified_${props.shortLink}`, codeValue)
+
+      // 3. 从 ApiResponse 的 data 核心域中平稳提出真实的文件资产元数据包，扔给父组件渲染
       emit('verify-success', res.data.data)
     } else {
       errorMsg.value = res.data?.message || '口令验证失败，请重新核对'
@@ -81,13 +88,14 @@ const submitCode = async () => {
   } catch (error) {
     console.error('后端验证服务熔断:', error)
 
-    // 💡 本地离线开发降级暗号维持不变：后端没开时，输密码 "0000" 硬闯
-    if (extractionCode.value === '0000') {
+    // 💡 本地离线开发降级暗号维持不变：后端没开时，输密码 "0000" 可直接模拟硬闯成功
+    if (codeValue === '0000') {
+      sessionStorage.setItem(`verified_${props.shortLink}`, '0000')
       emit('verify-success', {
         fileName: '极光高防沙盒模拟资产.zip',
         userId: 999,
         expireTime: '永久有效',
-        fileSize: '45.2 MB'
+        fileSize: 47395635 // 以真实字节表示
       })
       return
     }
@@ -97,38 +105,4 @@ const submitCode = async () => {
     submitting.value = false
   }
 }
-
-  errorMsg.value = ''
-  submitting.value = true
-
-  try {
-    // 📡 呼叫后端校验接口
-    const res = await axios.post('/share/verify', {
-      shortLink: props.shortLink,
-      extractionCode: extractionCode.value
-    })
-
-    if (res.data.success) {
-      // 验证成功，把后端返回的真实实体数据扔给父页面渲染
-      emit('verify-success', res.data.fileInfo)
-    } else {
-      errorMsg.value = res.data.message || '口令验证失败，请重新核对'
-    }
-  } catch (error) {
-    console.error('后端验证服务熔断:', error)
-    errorMsg.value = '网关连接拒绝，请确保后端服务正常运行'
-
-    // 💡 本地离线开发降级暗号：后端没开时，在前台输密码 "0000" 也能硬闯进去看效果
-    if (extractionCode.value === '0000') {
-      emit('verify-success', {
-        fileName: '离线测试模拟文件.zip',
-        userId: 999,
-        expireTime: '永久有效',
-        fileSize: '45.2 MB'
-      })
-    }
-  } finally {
-    submitting.value = false
-  }
-
 </script>
